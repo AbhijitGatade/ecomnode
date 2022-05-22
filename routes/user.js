@@ -46,14 +46,23 @@ router.get("/find/:id", async (req, res) => {
 
 //GET ALL USER
 router.get("/", async (req, res) => {
-  const query = req.query.new;
   try {
-    const users = query
-      ? await User.find().sort({ _id: -1 }).limit(5)
-      : await User.find();
-    res.status(200).json(users);
+    let users = await User.find();
+    let data = {
+      data: {
+        status: "success",
+        data: users,
+      },
+    };
+    res.end(JSON.stringify(data));
+    
   } catch (err) {
-    res.status(500).json(err);
+    let data = {
+      data: {
+        status: "fail",
+      },
+    };
+    res.end(JSON.stringify(data));
   }
 });
 

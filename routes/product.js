@@ -44,6 +44,26 @@ router.post("/", async (req, res) => {
 //UPDATE
 router.put("/:id", async (req, res) => {
   try {
+
+    if(req.body.imgcontent != "")
+    {
+      var charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var randomString = '';
+      for (var i = 0; i < 10; i++) {
+          var randomPoz = Math.floor(Math.random() * charSet.length);
+          randomString += charSet.substring(randomPoz,randomPoz+1);
+      }
+      var base64Data = req.body.imgcontent.replace(/^data:image\/png;base64,/, "");
+      base64Data = base64Data.replace(/^data:image\/jpeg;base64,/, "");
+      base64Data = base64Data.replace(/^data:image\/jpg;base64,/, "");
+      if(base64Data != ""){
+          req.body.imgpath = "productpics/" + randomString + ".png";
+          require("fs").writeFile("assets/" + req.body.imgpath, base64Data, 'base64', function(err) {
+            console.log(err);
+        });
+      }
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       {

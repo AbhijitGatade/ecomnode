@@ -7,85 +7,89 @@ router.post("/", async (req, res) => {
   const newOrder = new Order(req.body);
   try {
     const savedOrder = await newOrder.save();
-    res.status(200).json(savedOrder);
-  } catch (err) {
-    res.status(500).json(err);
-  }
+    let data = {
+      data: {
+        status: "success",
+        data: savedOrder,
+      },
+    };
+  res.end(JSON.stringify(data));
+} catch (err) {
+  console.log(err);
+  let data = {
+    data: {
+      status: "fail",
+    },
+  };
+  res.end(JSON.stringify(data));
+}
 });
 
-//UPDATE
-router.put("/:id", async (req, res) => {
+
+router.post("/markpaid/:id", async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body,
+        $set: {status:"paid"},
       },
       { new: true }
     );
-    res.status(200).json(updatedOrder);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-//DELETE
-router.delete("/:id", async (req, res) => {
-  try {
-    await Order.findByIdAndDelete(req.params.id);
-    res.status(200).json("Order has been deleted...");
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-//GET USER ORDERS
-router.get("/find/:userId", async (req, res) => {
-  try {
-    const orders = await Order.find({ userId: req.params.userId });
-    res.status(200).json(orders);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-// //GET ALL
-
-router.get("/", async (req, res) => {
-  try {
-    const orders = await Order.find();
-    res.status(200).json(orders);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
-
-// GET MONTHLY INCOME
-
-router.get("/income", async (req, res) => {
-  const date = new Date();
-  const lastMonth = new Date(date.setMonth(date.getMonth() - 1));
-  const previousMonth = new Date(new Date().setMonth(lastMonth.getMonth() - 1));
-
-  try {
-    const income = await Order.aggregate([
-      { $match: { createdAt: { $gte: previousMonth } } },
-      {
-        $project: {
-          month: { $month: "$createdAt" },
-          sales: "$amount",
-        },
+    let data = {
+      data: {
+        status: "success",
+        data:updatedOrder
       },
-      {
-        $group: {
-          _id: "$month",
-          total: { $sum: "$sales" },
-        },
-      },
-    ]);
-    res.status(200).json(income);
+    };
+    res.end(JSON.stringify(data));
   } catch (err) {
-    res.status(500).json(err);
+    let data = {
+      data: {
+        status: "fail"
+      },
+    };
+    res.end(JSON.stringify(data));
+  }
+});
+
+router.get("/list/:id", async (req, res) => {
+  try {
+    const orders = await Order.find({userid:req.params.id, status:"paid"});
+    let data = {
+      data: {
+        status: "success",
+        data:orders
+      },
+    };
+    res.end(JSON.stringify(data));
+  } catch (err) {
+    let data = {
+      data: {
+        status: "fail"
+      },
+    };
+    res.end(JSON.stringify(data));
+  }
+});
+
+
+router.get("/listall", async (req, res) => {
+  try {
+    const orders = await Order.find({status:"paid"});
+    let data = {
+      data: {
+        status: "success",
+        data:orders
+      },
+    };
+    res.end(JSON.stringify(data));
+  } catch (err) {
+    let data = {
+      data: {
+        status: "fail"
+      },
+    };
+    res.end(JSON.stringify(data));
   }
 });
 
