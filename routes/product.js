@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const Category = require("../models/Category");
 const router = require("express").Router();
 //CREATE
 router.post("/", async (req, res) => {
@@ -150,5 +151,53 @@ router.get("/", async (req, res) => {
     res.end(JSON.stringify(data));
   }
 });
+
+
+//GET ALL PRODUCTS
+router.get("/list/:id", async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);    
+    let products = await Product.find({category:category.name});
+    let data = {
+      data: {
+        status: "success",
+        data: products,
+      },
+    };
+    res.end(JSON.stringify(data));
+    
+  } catch (err) {
+    let data = {
+      data: {
+        status: "fail",
+      },
+    };
+    res.end(JSON.stringify(data));
+  }
+});
+
+
+//GET ALL PRODUCTS
+router.get("/search", async (req, res) => {
+  try {
+    let products = await Product.find();
+    let data = {
+      data: {
+        status: "success",
+        data: products,
+      },
+    };
+    res.end(JSON.stringify(data));
+    
+  } catch (err) {
+    let data = {
+      data: {
+        status: "fail",
+      },
+    };
+    res.end(JSON.stringify(data));
+  }
+});
+
 
 module.exports = router;
